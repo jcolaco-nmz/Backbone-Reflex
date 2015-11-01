@@ -5,8 +5,8 @@ Backbone-Reflex is Backbone.js plugin/extension that aims to improve and acceler
 ## Background
 
 As stated in the official site "Backbone.js gives structure to web applications by providing models with key-value binding and custom events, collections with a rich API of enumerable functions, views with declarative event handling, and connects it all to your existing API over a RESTful JSON interface.". However, Backbone Views are not the most convenient and practical way of rapidly develop dynamic webpages:
-    - Event handling declaration is labor intensive
-    - Explicitly update values by re-rendeding the whole view or through model change event handling and updating specific DOM elements with the new values
+* Event handling declaration is labor intensive
+* Explicitly update values by re-rendeding the whole view or through model change event handling and updating specific DOM elements with the new values
 
 The objective of Backbone-Reflex is to add an automatic way of updating view templates whenever the model changes, as well as updating the model whenever the view changes, and remove the need to write boilerplate code for updating the DOM, registering callbacks or watching model changes.
 
