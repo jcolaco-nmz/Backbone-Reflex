@@ -10,9 +10,11 @@ As stated in the official site "Backbone.js gives structure to web applications 
 
 The objective of Backbone-Reflex is to add an automatic way of updating view templates whenever the model changes, as well as updating the model whenever the view changes, and remove the need to write boilerplate code for updating the DOM, registering callbacks or watching model changes.
 
-## ViewController
+## View
 
-A new entity called ViewController is added to Backbone. A ViewController is a Backbone View on steroids that supports data-binding and direct controller access on its templates.
+Backbone Views were extended in order to support data-binding and automatic event binding in the template HTML.
+
+For example, imagine a view which contains user details. These details can be directly edited and saved on the view.
 With regular Backbone, a Model is created, then passed to a View, which registers events and renders a HTML template:
 
 **Model code**
@@ -31,16 +33,16 @@ var user =  new UserModel({
 **Simple editable user details template**
 ```html
 <strong>Name: </strong>
-<span name="name" class="user-details"><%- name %></span>
+<input name="name" type="text" class="user-details" value="<%- name %>"></input>
 <br>
 <strong>Age: </strong>
-<span name="age" class="user-details"><%- age %></span>
+<input name="age" type="text" class="user-details" value="<%- age %>"></input>
 <br>
 <strong>Address: </strong>
-<span name="address" class="user-details"><%- address %></span>
+<input name="address" type="text" class="user-details" value="<%- address %>"></input>
 <br>
 <strong>Country: </strong>
-<span name="country" class="user-details"><%- country %></span>
+<input name="country" type="text" class="user-details" value="<%- country %>"></input>
 <br>
 <input id="save" type="button" value="Save">
 <span id="msg"></span>
@@ -50,7 +52,9 @@ var user =  new UserModel({
 var UserDetailsView = Backbone.View.extend({
 
     events: {
+        // Save button event handling
         'click #save': 'save',
+        // Update fields event handling
         'keyup .user-details': 'updateModel'
     },
 
@@ -65,7 +69,7 @@ var UserDetailsView = Backbone.View.extend({
 
     updateModel: function (evt) {
         var $val = $(evt.currentTarget);
-        this.model.set($val.attr('name'), $val.text());
+        this.model.set($val.attr('name'), $val.val());
     },
 
     // Saves model. Adds success/error message, with specific css styling
@@ -93,6 +97,63 @@ userDetails.render();
 
 ```
 
-Even with a simple view, it required a generous amount of code, Most of which is boilerplate and will be repeated on all project views.
+Even with a simple view, it required a generous amount of code, most of which is boilerplate and will be repeated on all project views. Furthermore, if we wanted to listen to model changed we would have to register a listener.
 
-// TO BE CONTINUED...
+In Backbone-Reflex, a ReflexView is an extended version of the regular Backbone.View. However, a ReflexView will support data-binding and event binding on the template itself.
+
+For the same example:
+
+**User details template**
+```html
+<strong>Name: </strong>
+<input reflex-attr="name" type="text"></input>
+<br>
+<strong>Age: </strong>
+<input reflex-attr="age" type="text"></input>
+<br>
+<strong>Address: </strong>
+<input reflex-attr="address" type="text"></input>
+<br>
+<strong>Country: </strong>
+<input reflex-attr="country" type="text"></input>
+<br>
+<input type="button" value="Save" reflex-ctrl="click,save">
+<span id="msg"></span>
+```
+**View code**
+```javascript
+var UserDetailsView = Backbone.ReflexView.extend({
+
+
+    initialize: function (options) {
+        _.extend(this, options);
+    },
+
+    render: function () {
+        var template = _.template(...)();
+        this.$el.html(template);
+    },
+
+    // Saves model. Adds success/error message, with specific css styling
+    save: function () {
+        this.model.save().done(function () {
+            var $selector = this.$el.find('#msg');
+            $selector.text('Saved!');
+            $selector.removeClass('error');
+            $selector.addClass('success');
+        }.bind(this))
+        .error(function () {
+            this.$el.find('#msg').text('Error while saving');
+            $selector.removeClass('success');
+            $selector.addClass('error');
+        }.bind(this));
+    }
+
+});
+
+```
+
+**reflex-attr** - *reflex-attr="< attribute name >"* - Data-binding of a model attribute name.
+Data update is bidirectional, if the user changes the value, the model is updated, and if the model is changed the template changes as well.
+
+**reflex-ctrl** - *reflext-ctrl="< events >,< callback >"* - Register event handling by enumerating the events (e.g. 'click mouseover') seperated by spaces and the view callback method.
