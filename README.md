@@ -106,18 +106,18 @@ For the same example:
 **User details template**
 ```html
 <strong>Name: </strong>
-<input reflex-attr="name" type="text"></input>
+<input data-attr="name" type="text"></input>
 <br>
 <strong>Age: </strong>
-<input reflex-attr="age" type="text"></input>
+<input data-attr="age" type="text"></input>
 <br>
 <strong>Address: </strong>
-<input reflex-attr="address" type="text"></input>
+<input data-attr="address" type="text"></input>
 <br>
 <strong>Country: </strong>
-<input reflex-attr="country" type="text"></input>
+<input data-attr="country" type="text"></input>
 <br>
-<input type="button" value="Save" reflex-ctrl="click,save">
+<input type="button" value="Save" data-ctrl="click,save">
 <span id="msg"></span>
 ```
 **View code**
@@ -127,11 +127,14 @@ var UserDetailsView = Backbone.ReflexView.extend({
 
     initialize: function (options) {
         _.extend(this, options);
+        Backbone.ReflexView.prototype.initialize.apply(this, arguments);
     },
 
     render: function () {
         var template = _.template(...)();
         this.$el.html(template);
+        // The parent render must be called
+        Backbone.ReflexView.prototype.render.apply(this, arguments);
     },
 
     // Saves model. Adds success/error message, with specific css styling
@@ -153,7 +156,7 @@ var UserDetailsView = Backbone.ReflexView.extend({
 
 ```
 
-**reflex-attr** - *reflex-attr="< attribute name >"* - Data-binding of a model attribute name.
+**data-attr** - *data-attr="< attribute name >"* - Data-binding of a model attribute name.
 Data update is bidirectional, if the user changes the value, the model is updated, and if the model is changed the template changes as well.
 
-**reflex-ctrl** - *reflext-ctrl="< events >,< callback >"* - Register event handling by enumerating the events (e.g. 'click mouseover') seperated by spaces and the view callback method.
+**data-ctrl** - *data-ctrl="< events >,< callback >"* - Register event handling by enumerating the events (e.g. 'click mouseover') separated by spaces and the view callback method.
